@@ -14,11 +14,10 @@ from typing import Any, Dict, Optional, List
 
 # --- Configuración del Agente ---
 # URL del endpoint de la API para enviar datos.
-# Reemplaza con la IP pública de tu instancia EC2 y el puerto correcto.
+# Reemplaza con la IP pública de tu instancia  puerto correcto.
 API_ENDPOINT = "http://<Public_IPv4_Address>:5000/api/agent_data"
 
 # Obtiene el token de la API de una variable de entorno.
-# Es una práctica de seguridad fundamental.
 API_TOKEN = os.getenv("API_TOKEN")
 
 def collect_system_info() -> Dict[str, Any]:
@@ -80,13 +79,15 @@ def send_data_to_api(data: Dict[str, Any]):
         print("Error: API_TOKEN no está definida en las variables de entorno.")
         return
     
-    # La API que construimos espera la clave de autenticación como un
-    # parámetro de consulta, no como un encabezado de autorización.
-    params = {'api-key': API_TOKEN}
+    # La clave de la API se envia con encabezado HTTP
+    headers = {
+        'Content-Type': 'application/json',
+        'X-API-Key': API_TOKEN
+    }
 
     try:
-        # Usa el parámetro 'json' para que 'requests' serialice los datos automáticamente.
-        response = requests.post(API_ENDPOINT, params=params, json=data)
+        # Pasa el diccionario de encabezados a la petición.
+        response = requests.post(API_ENDPOINT, json=data, headers=headers)
         response.raise_for_status()
         print("Datos enviados correctamente a la API.")
         print(f"Respuesta del servidor: {response.status_code}")

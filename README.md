@@ -48,12 +48,12 @@ La forma más sencilla y segura de desplegar la API es usando Docker.
 2.  **Ejecuta el contenedor**, pasando el token de autenticación como variable de entorno y montando un volumen para persistir la base de datos:
     ```bash
     docker run -d -p 5000:5000 \
-    -e API_TOKEN="tu_clave_secreta" \
+    -e API_TOKEN=$API_TOKEN \
     --name sentinel-api \
     -v $(pwd):/app \
     sentinel-api
     ```
-    * `-e API_TOKEN="tu_clave_secreta"`: Pasa la clave de autenticación.
+    * `-e API_TOKEN=$API_TOKEN`: Le asigna la variable de entorno para la autenticación.
     * `-v $(pwd):/app`: Monta el directorio actual del host en el contenedor para que el archivo `agent_data.db` persista.
 
 ## Uso

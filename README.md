@@ -82,7 +82,7 @@ El agente (`src/agent/agent.py`) debe ejecutarse en el servidor que quieres moni
     curl -X POST \
     -H "Content-Type: application/json" \
     -d '{ "cpu_info": { "physical_cores": 4, "total_cores": 8, "max_frequency": 3500.0, "current_frequency": 3200.0, "cpu_usage_percent": 12.5 }, "processes": [], "users": [], "os_info": { "system": "Linux", "version": "5.15.0-75-generic", "hostname": "mi-servidor" } }' \
-    "http://<IP_API>:5000/api/agent_data?api-key=tu_clave_secreta"
+    "http://<IP_API>:5000/api/agent_data?api-key=$API_TOKEN"
     ```
 
 * **GET /api/agent_data** **Descripción:** Consulta los datos almacenados en la base de datos.

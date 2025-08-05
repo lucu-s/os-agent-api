@@ -3,7 +3,7 @@
 # entre los demás módulos (modelos, esquemas y lógica de la base de datos).
 
 # Importaciones necesarias de tu proyecto.
-from fastapi import FastAPI, Request, Query, Depends, HTTPException, status
+from fastapi import FastAPI, Request, Query, Depends, HTTPException, status, Header
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -35,11 +35,30 @@ def get_db():
     finally:
         db.close()
 
+# --- Custom Dependency for API Key Authentication ---
+# Esta dependencia lee la clave de la API del encabezado 'X-API-Key'.
+def api_key_auth(x_api_key: str = Header(..., alias="X-API-Key")):
+    API_KEY_SECRET = os.environ.get("API_TOKEN")
+
+    if not API_KEY_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Server API key not configured"
+        )
+    
+    if x_api_key != API_KEY_SECRET:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+    return x_api_key
+
 @app.post("/api/agent_data", status_code=status.HTTP_201_CREATED)
 async def receive_data(
     agent_data: AgentData, 
     request: Request, 
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _ = Depends(api_key_auth)  # Agregamos la dependencia para proteger el endpoint POST
 ):
     """
     Recibe la información de un agente y la almacena en la base de datos.
@@ -69,6 +88,4 @@ def read_agent_data(
             detail="No se encontraron datos para la IP especificada"
         )
     
-    # FastAPI con response_model se encarga de la serialización,
-    # por lo que no es necesario el bucle manual.
     return results
